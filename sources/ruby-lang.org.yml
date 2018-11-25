@@ -1,0 +1,12 @@
+url: https://www.ruby-lang.org/en/
+author: firetonton
+selectors:
+  date: "#main #content .post:first-child .post-info"
+  title: "head title"
+  item: "#main #content .post"
+  item_link: "h3 a"
+  item_title: "h3 a"
+  item_date: ".post-info"
+extractors:
+  date: "(\\d+ [a-zA-Z]+ \\d+)$"
+  item_date: "(\\d+ [a-zA-Z]+ \\d+)$"
