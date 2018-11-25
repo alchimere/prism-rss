@@ -62,18 +62,34 @@ class PrismHtmlExtractor
   def extract_items(page)
     @items = []
     page.css(@item_selector).each do |item|
-      d = item.css(@item_date_selector).text
-      if @item_date_extractor
-        d = d.match(Regexp.new(@item_date_extractor))[1] rescue d
+      d = nil
+      if @item_date_selector && !@item_date_selector.empty?
+        d = item.css(@item_date_selector).text
+        if @item_date_extractor
+          d = d.match(Regexp.new(@item_date_extractor))[1] rescue d
+        end
+      else
+        d = @date || extract_date(page)
       end
       d = DateTime.parse(d).to_s rescue DateTime.now.to_s
 
-      link = first_node(item.css(@item_link_selector))['href'] || '/'
+      item_link = if @item_link_selector && !@item_link_selector.empty?
+                    item.css(@item_link_selector)
+                  else
+                    item
+                  end
+      link = first_node(item_link)['href'] || '/'
       link = URI.join(@url, link).to_s if not link.start_with?('http')
+
+      title_str = if @item_title_selector.empty?
+                    item.text
+                  else
+                    item.css(@item_title_selector).text
+                  end
 
       @items << OpenStruct.new(
         url: link,
-        title: item.css(@item_title_selector).text || "Unknown title",
+        title: title_str || "Unknown title",
         date: d
       )
     end
@@ -85,16 +101,16 @@ class PrismHtmlExtractor
       yaml = YAML.load(f.read)
       @url = yaml['url']
       @author = yaml['author']
-      @date_selector = yaml['selectors']['date']
-      @date_extractor = yaml['extractors']['date']
-      @title_selector = yaml['selectors']['title'] || "head title"
+      @date_selector = yaml.dig('selectors', 'date')
+      @date_extractor = yaml.dig('extractors', 'date')
+      @title_selector = yaml.dig('selectors', 'title') || "head title"
 
-      @item_selector = yaml['selectors']['item']
-      @item_link_selector = yaml['selectors']['item_link']
-      @item_title_selector = yaml['selectors']['item_title']
+      @item_selector = yaml.dig('selectors', 'item')
+      @item_link_selector = yaml.dig('selectors', 'item_link')
+      @item_title_selector = yaml.dig('selectors', 'item_title')
 
-      @item_date_selector = yaml['selectors']['item_date']
-      @item_date_extractor = yaml['extractors']['item_date']
+      @item_date_selector = yaml.dig('selectors', 'item_date')
+      @item_date_extractor = yaml.dig('extractors', 'item_date')
     end
   end
 
