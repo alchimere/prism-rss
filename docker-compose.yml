@@ -1,0 +1,10 @@
+version: '3'
+services:
+  prism-rss:
+    build: .
+    volumes:
+      - ./rss:/app/rss
+      - ./sources:/app/sources
+    environment:
+      NB_LOOPS: -1
+      SLEEP_TIME: 10
