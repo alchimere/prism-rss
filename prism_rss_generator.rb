@@ -8,6 +8,7 @@ class PrismRSSGenerator
   def generate
     @extractor.extract!
     RSS::Maker.make("atom") do |maker|
+      puts @extractor.items.count
       maker.channel.author = @extractor.author
       maker.channel.updated = @extractor.date
       maker.channel.about = @extractor.url

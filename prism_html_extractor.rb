@@ -1,6 +1,8 @@
 require 'nokogiri'
 require 'open-uri'
 require 'ostruct'
+require 'watir'
+require 'webdrivers'
 require 'yaml'
 
 class PrismHtmlExtractor
@@ -10,12 +12,9 @@ class PrismHtmlExtractor
   end
 
   def extract!
-    page = Nokogiri::HTML(open(@url))
-
-    extract_date(page)
-    extract_title(page)
-    extract_items(page)
-
+    puts "Extracting #{url}"
+    static_extract!
+    watir_extract! if items.empty?
     self
   end
 
@@ -24,7 +23,12 @@ class PrismHtmlExtractor
   end
 
   def date
-    (@date || DateTime.now).to_s
+    case @date
+    when DateTime then @date.to_s
+    when /^[0-9]+$/ then Time.at(@date.to_i).to_datetime.to_s
+    else
+      (@date || DateTime.now).to_s
+    end.tap { |d| puts d }
   end
 
   def url
@@ -41,14 +45,44 @@ class PrismHtmlExtractor
   end
 
   private
+  def static_extract!
+    extract_from_html(open(@url))
+  end
+
+  def watir_extract!
+    browser = Watir::Browser.new :firefox
+    puts "[WATIR] go to #{url}"
+    browser.goto url
+    # Wait for the three selectors
+    [@item_selector].each do |selector|
+      next if selector.nil? || selector.empty?
+      puts "[WATIR] Wait for #{selector}"
+      browser.element(css: selector).wait_until(&:exists?)
+      puts "[WATIR] Wait done"
+    end
+    html = browser.html
+    browser.close
+    puts "[WATIR] End of browsing"
+    extract_from_html(html)
+  rescue => browser.close
+  end
+
+  def extract_from_html(html_content)
+    page = Nokogiri::HTML(html_content)
+
+    extract_date(page)
+    extract_title(page)
+    extract_items(page)
+  end
+
   def extract_date(page)
     if @date_selector.nil? || @date_selector.empty?
       @date = DateTime.now
     else
-      date_str = page.css(@date_selector).text
+      date_str = page.css(@date_selector).text.strip
 
       if @date_extractor
-        date_str = date_str.match(Regexp.new(@date_extractor))[1]
+        date_str = date_str.match(Regexp.new(@date_extractor))[1].strip
       end
 
       @date = date_str
