@@ -18,6 +18,7 @@ class PrismRSSGenerator
         maker.items.new_item do |item|
           item.link = extracted_item.url
           item.title = extracted_item.title
+          item.description = extracted_item.description
           item.updated = extracted_item.date
         end
       end

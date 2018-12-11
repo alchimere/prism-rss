@@ -20,7 +20,7 @@ SLEEP_TIME = if ENV['SLEEP_TIME'].nil?
 begin
   (1..NB_LOOPS).each do |i|
     puts "#{Time.now} run #{i}"
-    PrismRSS.new.run
+    PrismRSS.new.run(ARGV[0])
     if i < NB_LOOPS
       puts "#{Time.now} Sleep #{SLEEP_TIME} minutes"
       sleep(SLEEP_TIME * 60)
