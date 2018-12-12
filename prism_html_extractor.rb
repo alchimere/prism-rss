@@ -13,7 +13,7 @@ class PrismHtmlExtractor
 
   def extract!
     puts "Extracting #{url}"
-    static_extract!
+    static_extract! if not @browser
     watir_extract! if items.empty?
     self
   end
@@ -64,7 +64,9 @@ class PrismHtmlExtractor
     browser.close
     puts "[WATIR] End of browsing"
     extract_from_html(html)
-  rescue => browser.close
+  rescue => e
+    puts "[WATIR] Error: #{e.message}"
+    browser.close
   end
 
   def extract_from_html(html_content)
@@ -121,10 +123,16 @@ class PrismHtmlExtractor
                     item.css(@item_title_selector).text
                   end
 
+      description = []
+      @item_description_selectors.each do |desc_selector|
+        description << item.css(desc_selector).text
+      end
+
       @items << OpenStruct.new(
         url: link,
         title: title_str || "Unknown title",
-        date: d
+        date: d,
+        description: description.join("\n---\n")
       )
     end
     @items
@@ -135,6 +143,7 @@ class PrismHtmlExtractor
       yaml = YAML.load(f.read)
       @url = yaml['url']
       @author = yaml['author']
+      @browser = !!yaml['browser']
       @date_selector = yaml.dig('selectors', 'date')
       @date_extractor = yaml.dig('extractors', 'date')
       @title_selector = yaml.dig('selectors', 'title') || "head title"
@@ -142,6 +151,7 @@ class PrismHtmlExtractor
       @item_selector = yaml.dig('selectors', 'item')
       @item_link_selector = yaml.dig('selectors', 'item_link')
       @item_title_selector = yaml.dig('selectors', 'item_title')
+      @item_description_selectors = Array(yaml.dig('selectors', 'item_description'))
 
       @item_date_selector = yaml.dig('selectors', 'item_date')
       @item_date_extractor = yaml.dig('extractors', 'item_date')

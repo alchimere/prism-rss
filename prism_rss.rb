@@ -2,9 +2,13 @@ require './prism_html_extractor'
 require './prism_rss_generator'
 
 class PrismRSS
-  def run
-    files.each do |filename|
-      rssify(filename)
+  def run(param_filename = nil)
+    if param_filename
+      rssify(param_filename)
+    else
+      files.each do |filename|
+        rssify(filename)
+      end
     end
   end
 
