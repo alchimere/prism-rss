@@ -21,7 +21,7 @@ class PrismRSS
       f.write(rss.to_s)
     end
   rescue => e
-    puts("Error: #{e.message}")
+    puts("#{e.class.name}: #{e.message}")
     puts(*e.backtrace)
   end
 
