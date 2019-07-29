@@ -12,6 +12,10 @@ GEM
     selenium-webdriver (3.141.0)
       childprocess (~> 0.5)
       rubyzip (~> 1.2, >= 1.2.2)
+    sorbet (0.4.4525)
+      sorbet-static (= 0.4.4525)
+    sorbet-runtime (0.4.4525)
+    sorbet-static (0.4.4525-universal-darwin-14)
     watir (6.15.1)
       regexp_parser (~> 1.2)
       selenium-webdriver (~> 3.4, >= 3.4.1)
@@ -25,6 +29,8 @@ PLATFORMS
 
 DEPENDENCIES
   nokogiri
+  sorbet
+  sorbet-runtime
   watir
   webdrivers
 
