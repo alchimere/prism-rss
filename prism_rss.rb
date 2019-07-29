@@ -1,3 +1,4 @@
+# typed: true
 require './prism_html_extractor'
 require './prism_rss_generator'
 
@@ -22,7 +23,7 @@ class PrismRSS
     end
   rescue => e
     puts("#{e.class.name}: #{e.message}")
-    puts(*e.backtrace)
+    puts(e.backtrace.join("\n"))
   end
 
   def files

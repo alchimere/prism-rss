@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# typed: true
 require './prism_rss'
 
 NB_LOOPS = if ENV['NB_LOOPS'].to_i > 0
@@ -29,5 +30,5 @@ begin
   puts "#{Time.now} done"
 rescue => e
   puts(e.message)
-  puts(*e.backtrace)
+  puts(e.backtrace.join("\n"))
 end

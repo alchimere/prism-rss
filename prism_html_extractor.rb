@@ -1,3 +1,4 @@
+# typed: true
 require 'nokogiri'
 require 'open-uri'
 require 'ostruct'
@@ -66,7 +67,7 @@ class PrismHtmlExtractor
     extract_from_html(html)
   rescue => e
     puts "[WATIR] Error: #{e.message}"
-    browser.close
+    browser.close if browser
   end
 
   def extract_from_html(html_content)
